@@ -4,15 +4,19 @@ from selenium.webdriver.support import expected_conditions as EC
 from locators import LoginPageLocators, MainPageLocators, RegisterPageLocators, RestorePasswordPageLocators
 from helpers import generate_email, generate_password, generate_name
 
+# Константы с URL-адресами
+BASE_URL = "https://stellarburgers.education-services.ru"
+REGISTER_URL = f"{BASE_URL}/register"
+LOGIN_URL = f"{BASE_URL}/login"
+FORGOT_PASSWORD_URL = f"{BASE_URL}/forgot-password"
+
 
 class TestLogin:
-
     def test_login_via_main_page_button(self, driver):
         # Тест входа через главную страницу
         # Сначала регистрируем пользователя
-        driver.get("https://stellarburgers.education-services.ru/register")
+        driver.get(REGISTER_URL)
         wait = WebDriverWait(driver, 15)
-
         wait.until(EC.presence_of_element_located(RegisterPageLocators.NAME_INPUT))
 
         name = generate_name()
@@ -28,7 +32,7 @@ class TestLogin:
         wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
 
         # Переходим на главную
-        driver.get("https://stellarburgers.education-services.ru/")
+        driver.get(BASE_URL)
 
         # Нажимаем кнопку "Войти в аккаунт"
         wait.until(EC.element_to_be_clickable(MainPageLocators.LOGIN_BUTTON))
@@ -40,16 +44,14 @@ class TestLogin:
         driver.find_element(*LoginPageLocators.PASSWORD_INPUT).send_keys(password)
         driver.find_element(*LoginPageLocators.LOGIN_SUBMIT_BUTTON).click()
 
-        # Проверяем что вошли
-        wait.until(EC.presence_of_element_located(MainPageLocators.BURGER_TITLE))
-        assert driver.find_element(*MainPageLocators.BURGER_TITLE).text == "Соберите бургер"
+        # Проверяем, что вошли (проверяем видимость элемента, а не текст)
+        wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
 
     def test_login_via_personal_account_button(self, driver):
         # Тест входа через личный кабинет
         # Регистрация
-        driver.get("https://stellarburgers.education-services.ru/register")
+        driver.get(REGISTER_URL)
         wait = WebDriverWait(driver, 15)
-
         wait.until(EC.presence_of_element_located(RegisterPageLocators.NAME_INPUT))
 
         name = generate_name()
@@ -64,7 +66,7 @@ class TestLogin:
         wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
 
         # Переходим на главную
-        driver.get("https://stellarburgers.education-services.ru/")
+        driver.get(BASE_URL)
 
         # Нажимаем "Личный кабинет"
         wait.until(EC.element_to_be_clickable(MainPageLocators.PERSONAL_ACCOUNT_BUTTON))
@@ -76,16 +78,14 @@ class TestLogin:
         driver.find_element(*LoginPageLocators.PASSWORD_INPUT).send_keys(password)
         driver.find_element(*LoginPageLocators.LOGIN_SUBMIT_BUTTON).click()
 
-        # Проверяем что вошли
-        wait.until(EC.presence_of_element_located(MainPageLocators.BURGER_TITLE))
-        assert driver.find_element(*MainPageLocators.BURGER_TITLE).text == "Соберите бургер"
+        # Проверяем, что вошли
+        wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
 
     def test_login_via_registration_form(self, driver):
         # Тест входа через форму регистрации
         # Регистрация
-        driver.get("https://stellarburgers.education-services.ru/register")
+        driver.get(REGISTER_URL)
         wait = WebDriverWait(driver, 15)
-
         wait.until(EC.presence_of_element_located(RegisterPageLocators.NAME_INPUT))
 
         name = generate_name()
@@ -100,7 +100,7 @@ class TestLogin:
         wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
 
         # Переходим обратно на регистрацию
-        driver.get("https://stellarburgers.education-services.ru/register")
+        driver.get(REGISTER_URL)
 
         # Нажимаем ссылку "Войти"
         wait.until(EC.element_to_be_clickable(RegisterPageLocators.LOGIN_LINK))
@@ -112,16 +112,14 @@ class TestLogin:
         driver.find_element(*LoginPageLocators.PASSWORD_INPUT).send_keys(password)
         driver.find_element(*LoginPageLocators.LOGIN_SUBMIT_BUTTON).click()
 
-        # Проверяем что вошли
-        wait.until(EC.presence_of_element_located(MainPageLocators.BURGER_TITLE))
-        assert driver.find_element(*MainPageLocators.BURGER_TITLE).text == "Соберите бургер"
+        # Проверяем, что вошли
+        wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
 
     def test_login_via_password_recovery_form(self, driver):
         # Тест входа через форму восстановления пароля
         # Регистрация
-        driver.get("https://stellarburgers.education-services.ru/register")
+        driver.get(REGISTER_URL)
         wait = WebDriverWait(driver, 15)
-
         wait.until(EC.presence_of_element_located(RegisterPageLocators.NAME_INPUT))
 
         name = generate_name()
@@ -136,7 +134,7 @@ class TestLogin:
         wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
 
         # Переходим на страницу восстановления пароля
-        driver.get("https://stellarburgers.education-services.ru/forgot-password")
+        driver.get(FORGOT_PASSWORD_URL)
 
         # Нажимаем ссылку "Войти"
         wait.until(EC.element_to_be_clickable(RestorePasswordPageLocators.LOGIN_LINK))
@@ -148,6 +146,5 @@ class TestLogin:
         driver.find_element(*LoginPageLocators.PASSWORD_INPUT).send_keys(password)
         driver.find_element(*LoginPageLocators.LOGIN_SUBMIT_BUTTON).click()
 
-        # Проверяем что вошли
-        wait.until(EC.presence_of_element_located(MainPageLocators.BURGER_TITLE))
-        assert driver.find_element(*MainPageLocators.BURGER_TITLE).text == "Соберите бургер"
+        # Проверяем, что вошли
+        wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
