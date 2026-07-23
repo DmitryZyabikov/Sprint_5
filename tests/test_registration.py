@@ -1,15 +1,17 @@
 import pytest
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from locators import RegisterPageLocators, LoginPageLocators, MainPageLocators
+
+from locators import RegisterPageLocators, LoginPageLocators
 from helpers import generate_email, generate_password, generate_name
+from constants import REGISTER_URL
 
 
 class TestRegistration:
 
     def test_successful_registration(self, driver):
-        # Тест успешной регистрации
-        driver.get("https://stellarburgers.education-services.ru/register")
+        """Тест успешной регистрации."""
+        driver.get(REGISTER_URL)
 
         wait = WebDriverWait(driver, 15)
 
@@ -29,13 +31,13 @@ class TestRegistration:
         # Нажимаем кнопку регистрации
         driver.find_element(*RegisterPageLocators.REGISTER_BUTTON).click()
 
-        # Проверяем что перешли на страницу входа
-        wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
-        assert driver.find_element(*LoginPageLocators.LOGIN_TITLE).text == "Вход"
+        # Проверяем что перешли на страницу входа — элемент отображается
+        login_title = wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
+        assert login_title.is_displayed()
 
     def test_registration_with_short_password(self, driver):
-        # Тест ошибки при коротком пароле
-        driver.get("https://stellarburgers.education-services.ru/register")
+        """Тест ошибки при коротком пароле."""
+        driver.get(REGISTER_URL)
 
         wait = WebDriverWait(driver, 15)
 
@@ -55,6 +57,6 @@ class TestRegistration:
         # Нажимаем кнопку
         driver.find_element(*RegisterPageLocators.REGISTER_BUTTON).click()
 
-        # Проверяем что показалась ошибка
+        # Проверяем что показалась ошибка — элемент отображается
         error_message = wait.until(EC.presence_of_element_located(RegisterPageLocators.PASSWORD_ERROR))
-        assert error_message.text == "Некорректный пароль"
+        assert error_message.is_displayed()

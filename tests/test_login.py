@@ -1,35 +1,15 @@
 import pytest
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from locators import LoginPageLocators, MainPageLocators, RegisterPageLocators, RestorePasswordPageLocators
-from helpers import generate_email, generate_password, generate_name
 
-# Константы с URL-адресами
-BASE_URL = "https://stellarburgers.education-services.ru"
-REGISTER_URL = f"{BASE_URL}/register"
-LOGIN_URL = f"{BASE_URL}/login"
-FORGOT_PASSWORD_URL = f"{BASE_URL}/forgot-password"
+from locators import LoginPageLocators, MainPageLocators, RegisterPageLocators, RestorePasswordPageLocators
+from constants import BASE_URL, FORGOT_PASSWORD_URL
 
 
 class TestLogin:
-    def test_login_via_main_page_button(self, driver):
-        # Тест входа через главную страницу
-        # Сначала регистрируем пользователя
-        driver.get(REGISTER_URL)
+    def test_login_via_main_page_button(self, logged_in_user, driver):
+        """Тест входа через кнопку 'Войти в аккаунт' на главной странице."""
         wait = WebDriverWait(driver, 15)
-        wait.until(EC.presence_of_element_located(RegisterPageLocators.NAME_INPUT))
-
-        name = generate_name()
-        email = generate_email()
-        password = generate_password(6)
-
-        driver.find_element(*RegisterPageLocators.NAME_INPUT).send_keys(name)
-        driver.find_element(*RegisterPageLocators.EMAIL_INPUT).send_keys(email)
-        driver.find_element(*RegisterPageLocators.PASSWORD_INPUT).send_keys(password)
-        driver.find_element(*RegisterPageLocators.REGISTER_BUTTON).click()
-
-        # Ждем перехода на страницу входа
-        wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
 
         # Переходим на главную
         driver.get(BASE_URL)
@@ -39,31 +19,19 @@ class TestLogin:
         driver.find_element(*MainPageLocators.LOGIN_BUTTON).click()
 
         # Заполняем форму
+        email, password, name = logged_in_user
         wait.until(EC.presence_of_element_located(LoginPageLocators.EMAIL_INPUT))
         driver.find_element(*LoginPageLocators.EMAIL_INPUT).send_keys(email)
         driver.find_element(*LoginPageLocators.PASSWORD_INPUT).send_keys(password)
         driver.find_element(*LoginPageLocators.LOGIN_SUBMIT_BUTTON).click()
 
-        # Проверяем, что вошли (проверяем видимость элемента, а не текст)
-        wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
+        # Проверяем, что вошли — элемент отображается
+        burger_title = wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
+        assert burger_title.is_displayed()
 
-    def test_login_via_personal_account_button(self, driver):
-        # Тест входа через личный кабинет
-        # Регистрация
-        driver.get(REGISTER_URL)
+    def test_login_via_personal_account_button(self, logged_in_user, driver):
+        """Тест входа через кнопку 'Личный кабинет'."""
         wait = WebDriverWait(driver, 15)
-        wait.until(EC.presence_of_element_located(RegisterPageLocators.NAME_INPUT))
-
-        name = generate_name()
-        email = generate_email()
-        password = generate_password(6)
-
-        driver.find_element(*RegisterPageLocators.NAME_INPUT).send_keys(name)
-        driver.find_element(*RegisterPageLocators.EMAIL_INPUT).send_keys(email)
-        driver.find_element(*RegisterPageLocators.PASSWORD_INPUT).send_keys(password)
-        driver.find_element(*RegisterPageLocators.REGISTER_BUTTON).click()
-
-        wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
 
         # Переходим на главную
         driver.get(BASE_URL)
@@ -73,33 +41,21 @@ class TestLogin:
         driver.find_element(*MainPageLocators.PERSONAL_ACCOUNT_BUTTON).click()
 
         # Заполняем форму
+        email, password, name = logged_in_user
         wait.until(EC.presence_of_element_located(LoginPageLocators.EMAIL_INPUT))
         driver.find_element(*LoginPageLocators.EMAIL_INPUT).send_keys(email)
         driver.find_element(*LoginPageLocators.PASSWORD_INPUT).send_keys(password)
         driver.find_element(*LoginPageLocators.LOGIN_SUBMIT_BUTTON).click()
 
-        # Проверяем, что вошли
-        wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
+        # Проверяем, что вошли — элемент отображается
+        burger_title = wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
+        assert burger_title.is_displayed()
 
-    def test_login_via_registration_form(self, driver):
-        # Тест входа через форму регистрации
-        # Регистрация
-        driver.get(REGISTER_URL)
+    def test_login_via_registration_form(self, logged_in_user, driver):
+        """Тест входа через ссылку 'Войти' на странице регистрации."""
         wait = WebDriverWait(driver, 15)
-        wait.until(EC.presence_of_element_located(RegisterPageLocators.NAME_INPUT))
 
-        name = generate_name()
-        email = generate_email()
-        password = generate_password(6)
-
-        driver.find_element(*RegisterPageLocators.NAME_INPUT).send_keys(name)
-        driver.find_element(*RegisterPageLocators.EMAIL_INPUT).send_keys(email)
-        driver.find_element(*RegisterPageLocators.PASSWORD_INPUT).send_keys(password)
-        driver.find_element(*RegisterPageLocators.REGISTER_BUTTON).click()
-
-        wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
-
-        # Переходим обратно на регистрацию
+        # Переходим на страницу регистрации
         driver.get(REGISTER_URL)
 
         # Нажимаем ссылку "Войти"
@@ -107,31 +63,19 @@ class TestLogin:
         driver.find_element(*RegisterPageLocators.LOGIN_LINK).click()
 
         # Заполняем форму
+        email, password, name = logged_in_user
         wait.until(EC.presence_of_element_located(LoginPageLocators.EMAIL_INPUT))
         driver.find_element(*LoginPageLocators.EMAIL_INPUT).send_keys(email)
         driver.find_element(*LoginPageLocators.PASSWORD_INPUT).send_keys(password)
         driver.find_element(*LoginPageLocators.LOGIN_SUBMIT_BUTTON).click()
 
-        # Проверяем, что вошли
-        wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
+        # Проверяем, что вошли — элемент отображается
+        burger_title = wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
+        assert burger_title.is_displayed()
 
-    def test_login_via_password_recovery_form(self, driver):
-        # Тест входа через форму восстановления пароля
-        # Регистрация
-        driver.get(REGISTER_URL)
+    def test_login_via_password_recovery_form(self, logged_in_user, driver):
+        """Тест входа через ссылку 'Войти' на странице восстановления пароля."""
         wait = WebDriverWait(driver, 15)
-        wait.until(EC.presence_of_element_located(RegisterPageLocators.NAME_INPUT))
-
-        name = generate_name()
-        email = generate_email()
-        password = generate_password(6)
-
-        driver.find_element(*RegisterPageLocators.NAME_INPUT).send_keys(name)
-        driver.find_element(*RegisterPageLocators.EMAIL_INPUT).send_keys(email)
-        driver.find_element(*RegisterPageLocators.PASSWORD_INPUT).send_keys(password)
-        driver.find_element(*RegisterPageLocators.REGISTER_BUTTON).click()
-
-        wait.until(EC.presence_of_element_located(LoginPageLocators.LOGIN_TITLE))
 
         # Переходим на страницу восстановления пароля
         driver.get(FORGOT_PASSWORD_URL)
@@ -141,10 +85,12 @@ class TestLogin:
         driver.find_element(*RestorePasswordPageLocators.LOGIN_LINK).click()
 
         # Заполняем форму
+        email, password, name = logged_in_user
         wait.until(EC.presence_of_element_located(LoginPageLocators.EMAIL_INPUT))
         driver.find_element(*LoginPageLocators.EMAIL_INPUT).send_keys(email)
         driver.find_element(*LoginPageLocators.PASSWORD_INPUT).send_keys(password)
         driver.find_element(*LoginPageLocators.LOGIN_SUBMIT_BUTTON).click()
 
-        # Проверяем, что вошли
-        wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
+        # Проверяем, что вошли — элемент отображается
+        burger_title = wait.until(EC.visibility_of_element_located(MainPageLocators.BURGER_TITLE))
+        assert burger_title.is_displayed()
